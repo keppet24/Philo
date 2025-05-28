@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: othmaneettaqi <othmaneettaqi@student.42    +#+  +:+       +#+        */
+/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:58:31 by othmaneetta       #+#    #+#             */
-/*   Updated: 2025/05/27 21:20:46 by othmaneetta      ###   ########.fr       */
+/*   Updated: 2025/05/28 16:55:28 by oettaqi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ typedef struct s_global_info
 	long	time_to_eat;
 	long	time_to_sleep;
 	int		nbr_of_time_each_philo_must_eat;
+	long	beginning_of_simulation;
 	t_fork	*table_of_fork; 
 	t_philo	*table_of_philo;
 	int		a_philo_has_died;
