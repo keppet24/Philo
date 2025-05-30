@@ -6,7 +6,7 @@
 /*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:58:31 by othmaneetta       #+#    #+#             */
-/*   Updated: 2025/05/28 16:55:28 by oettaqi          ###   ########.fr       */
+/*   Updated: 2025/05/30 14:57:08 by oettaqi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,5 @@ typedef struct s_philo
 	pthread_mutex_t mutex_info_meal_philo;
 	t_global_info	*infos;
 }				t_philo;
-
-
-
 
 #endif
