@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: othmaneettaqi <othmaneettaqi@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:58:31 by othmaneetta       #+#    #+#             */
-/*   Updated: 2025/05/30 14:57:08 by oettaqi          ###   ########.fr       */
+/*   Updated: 2025/05/31 14:29:23 by othmaneetta      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <stdio.h>
 
 typedef struct s_philo t_philo;
-
 
 typedef struct s_fork
 {
@@ -42,6 +41,8 @@ typedef struct s_global_info
 	int		a_philo_has_died;
 	pthread_mutex_t mutex_info_die_of_philo;
 	pthread_mutex_t	mutex_on_write;
+    int     philos_finished;          /* combien ont atteint la limite ? */
+    pthread_mutex_t mutex_finished;   /* protège philos_finished         */
 }				t_global_info;
 
 typedef struct s_philo
@@ -55,5 +56,8 @@ typedef struct s_philo
 	pthread_mutex_t mutex_info_meal_philo;
 	t_global_info	*infos;
 }				t_philo;
+
+int parsing(int ac, char **av);
+int	ft_atoi(char *s1);
 
 #endif

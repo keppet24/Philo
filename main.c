@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: othmaneettaqi <othmaneettaqi@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:55:45 by othmaneetta       #+#    #+#             */
-/*   Updated: 2025/05/30 18:33:08 by oettaqi          ###   ########.fr       */
+/*   Updated: 2025/05/31 16:24:07 by othmaneetta      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,18 +56,13 @@ void	take_two_fork_even(t_philo *philo)
 	pthread_mutex_lock(&philo->right_fork->mutex_of_the_fork);
 }
 
-void	eating_process_even(t_philo *philo)
+void	precise_sleep(long dur_ms)
 {
-	pthread_mutex_lock(&philo->infos->mutex_on_write);
-	printf("[%ld] , [%d] has taken a fork \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	printf("[%ld] , [%d] has taken a fork \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	pthread_mutex_lock(&philo->mutex_info_meal_philo);
-    philo->last_eating_time = timetamp();
-    philo->numbers_of_meal_eaten++;
-	printf("[%ld] , [%d] is eating \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	pthread_mutex_unlock(&philo->mutex_info_meal_philo);
-	pthread_mutex_unlock(&philo->infos->mutex_on_write);
-	usleep(philo->infos->time_to_eat * 1000);
+	long start;
+
+	start = timetamp();
+	while (timetamp() - start < dur_ms)
+		usleep(500);
 }
 
 void	drop_the_forks_even(t_philo *philo)
@@ -76,12 +71,13 @@ void	drop_the_forks_even(t_philo *philo)
 	pthread_mutex_unlock(&philo->left_fork->mutex_of_the_fork);
 }
 
-void	printf_mutex_sleeping(t_philo *philo)
+void printf_mutex_sleeping(t_philo *p)
 {
-	pthread_mutex_lock(&philo->infos->mutex_on_write);
-	printf("[%ld] , [%d] is sleeping \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	pthread_mutex_unlock(&philo->infos->mutex_on_write);    
-	usleep(philo->infos->time_to_sleep * 1000);
+    pthread_mutex_lock(&p->infos->mutex_on_write);
+    printf("[%ld] , [%d] is sleeping\n",
+           timetamp() - p->infos->beginning_of_simulation, p->id + 1);
+    pthread_mutex_unlock(&p->infos->mutex_on_write);
+    precise_sleep(p->infos->time_to_sleep);
 }
 
 void	take_two_forks_odd(t_philo *philo)
@@ -90,19 +86,38 @@ void	take_two_forks_odd(t_philo *philo)
 	pthread_mutex_lock(&philo->left_fork->mutex_of_the_fork);
 }
 
-void	eating_process_odd(t_philo *philo)
+void eating_process(t_philo *p)
 {
-	pthread_mutex_lock(&philo->infos->mutex_on_write);
-	printf("[%ld] , [%d] has taken a fork \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	printf("[%ld] , [%d] has taken a fork \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	pthread_mutex_lock(&philo->mutex_info_meal_philo);
-	philo->last_eating_time = timetamp();
-	philo->numbers_of_meal_eaten++;
-	printf("[%ld] , [%d] is eating \n", timetamp() - philo->infos->beginning_of_simulation, philo->id + 1);
-	pthread_mutex_unlock(&philo->mutex_info_meal_philo);
-	pthread_mutex_unlock(&philo->infos->mutex_on_write);
-	usleep(philo->infos->time_to_eat * 1000);
+    /* 1. Marquer le repas IMMÉDIATEMENT */
+    pthread_mutex_lock(&p->mutex_info_meal_philo);
+    p->numbers_of_meal_eaten++;
+    p->last_eating_time = timetamp();                 /* ← ici */
+    int meals = p->numbers_of_meal_eaten;             /* garder la valeur pour tester après */
+    pthread_mutex_unlock(&p->mutex_info_meal_philo);
+
+    /* 2. Signaler qu’il a atteint la limite */
+    if (p->infos->nbr_of_time_each_philo_must_eat != -1 &&
+        meals == p->infos->nbr_of_time_each_philo_must_eat)
+    {
+        pthread_mutex_lock(&p->infos->mutex_finished);
+        p->infos->philos_finished++;
+        pthread_mutex_unlock(&p->infos->mutex_finished);
+    }
+
+    /* 3. Affichages */
+    pthread_mutex_lock(&p->infos->mutex_on_write);
+    printf("[%ld] , [%d] has taken a fork\n",
+           timetamp() - p->infos->beginning_of_simulation, p->id + 1);
+    printf("[%ld] , [%d] has taken a fork\n",
+           timetamp() - p->infos->beginning_of_simulation, p->id + 1);
+    printf("[%ld] , [%d] is eating\n",
+           timetamp() - p->infos->beginning_of_simulation, p->id + 1);
+    pthread_mutex_unlock(&p->infos->mutex_on_write);
+
+    /* 4. Mastication réelle */
+    precise_sleep(p->infos->time_to_eat);
 }
+
 
 void	drop_the_forks_odd(t_philo *philo)
 {
@@ -121,7 +136,7 @@ int	routine_even(t_philo *philo)
 		drop_the_forks_even(philo);
 		return (0);
 	}
-	eating_process_even(philo);
+	eating_process(philo);
 	drop_the_forks_even(philo);
 	if (!simulation_is_not_ended(philo))
 		return (0);
@@ -141,7 +156,7 @@ int	routine_odd(t_philo *philo)
 		drop_the_forks_odd(philo);
 		return (0);
 	}
-	eating_process_odd(philo);
+	eating_process(philo);
 	drop_the_forks_odd(philo);
 	if (!simulation_is_not_ended(philo))
 		return (0);
@@ -235,31 +250,43 @@ void	a_philo_died(t_global_info *infos, int i)
 	pthread_mutex_unlock(&infos->table_of_philo[i].mutex_info_meal_philo);
 }
 
-void	*monitor(void *arg)
+void *monitor(void *arg)
 {
-	int				i;
-	long			current_time;
-	t_global_info	*infos;
+    t_global_info *infos = (t_global_info *)arg;
+    long          current_time;
+    int           i;
 
-	infos = (t_global_info *)arg;
-	while (1)
-	{
-		i = 0;
-		while (i < infos->nbr_of_philosophers)
-		{
-			current_time = timetamp();
-			pthread_mutex_lock(&infos->table_of_philo[i].mutex_info_meal_philo);
-			if (current_time - infos->table_of_philo[i].last_eating_time > infos->time_to_die)
-			{
-				a_philo_died(infos, i);
-				return  (NULL);
-			}
-			pthread_mutex_unlock(&infos->table_of_philo[i].mutex_info_meal_philo);
-			i++;
-		}
-		usleep(1000);
-	}
+    while (1)
+    {
+        pthread_mutex_lock(&infos->mutex_finished);
+        if (infos->nbr_of_time_each_philo_must_eat != -1 &&
+            infos->philos_finished == infos->nbr_of_philosophers)
+        {
+            pthread_mutex_unlock(&infos->mutex_finished);
+            pthread_mutex_lock(&infos->mutex_info_die_of_philo);
+            infos->a_philo_has_died = 1;          /* drapeau de fin */
+            pthread_mutex_unlock(&infos->mutex_info_die_of_philo);
+            return NULL;
+        }
+        pthread_mutex_unlock(&infos->mutex_finished);
+        i = 0;
+        while (i < infos->nbr_of_philosophers)
+        {
+            current_time = timetamp();
+            pthread_mutex_lock(&infos->table_of_philo[i].mutex_info_meal_philo);
+            if (current_time - infos->table_of_philo[i].last_eating_time >
+                infos->time_to_die)
+            {
+                a_philo_died(infos, i);
+                return NULL;
+            }
+            pthread_mutex_unlock(&infos->table_of_philo[i].mutex_info_meal_philo);
+            i++;
+        }
+        usleep(1000);
+    }
 }
+
 
 void	clean_and_destroy(t_global_info *infos)
 {
@@ -288,8 +315,10 @@ void	*routine_one_philo(void *arg)
 	return (NULL);
 }
 
-void	init_if_one_philo(t_global_info *infos, pthread_t id_monitor_thread)
+void	init_if_one_philo(t_global_info *infos)
 {
+	pthread_t	id_monitor_thread;
+
 	infos->table_of_fork[0].id = 0;
 	pthread_mutex_init(&(infos->table_of_fork[0].mutex_of_the_fork), NULL);
 	infos->table_of_philo[0].id = 0;
@@ -312,8 +341,6 @@ void	init_if_one_philo(t_global_info *infos, pthread_t id_monitor_thread)
 
 int    one_philo_case(t_global_info *infos)
 {
-	pthread_t	id_monitor_thread;
-
 	infos->beginning_of_simulation = timetamp();
 	infos->table_of_philo = malloc(sizeof(t_philo));
 	if (!infos->table_of_philo)
@@ -328,7 +355,7 @@ int    one_philo_case(t_global_info *infos)
 		free(infos);
 		return (0); 
 	}
-	init_if_one_philo(infos, id_monitor_thread);
+	init_if_one_philo(infos);
 	free(infos->table_of_philo);
 	free(infos->table_of_fork);
 	free(infos);
@@ -339,18 +366,23 @@ int main(int ac, char **av)
 {
 	t_global_info	*infos;
 	pthread_t		id_monitor;
-	(void)ac;
 
-	// if (parsing(ac, av) == 0)
-	// 	return (write("ERROR"));
+	if (parsing(ac, av) == 0)
+		return (0);
 	infos = malloc(sizeof(t_global_info));
-	infos->nbr_of_philosophers = atoi(av[1]);
-	infos->time_to_die = atoi(av[2]);
-	infos->time_to_eat = atoi(av[3]);
-	infos->time_to_sleep = atoi(av[4]);
+	infos->nbr_of_philosophers = ft_atoi(av[1]);
+	infos->time_to_die = ft_atoi(av[2]);
+	infos->time_to_eat = ft_atoi(av[3]);
+	infos->time_to_sleep = ft_atoi(av[4]);
+	if (ac == 6)
+		infos->nbr_of_time_each_philo_must_eat = ft_atoi(av[5]);
+	else
+		infos->nbr_of_time_each_philo_must_eat = -1;
 	infos->a_philo_has_died = 0;
 	if (infos->nbr_of_philosophers == 1)
 		return (one_philo_case(infos));
+	infos->philos_finished = 0;
+	pthread_mutex_init(&infos->mutex_finished, NULL);	
 	pthread_mutex_init(&infos->mutex_info_die_of_philo, NULL);
 	pthread_mutex_init(&infos->mutex_on_write, NULL);
 	create_philo_and_set_the_table(infos);
