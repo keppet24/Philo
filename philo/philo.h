@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seb <seb@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 16:58:31 by othmaneetta       #+#    #+#             */
-/*   Updated: 2025/05/31 17:08:40 by seb              ###   ########.fr       */
+/*   Updated: 2025/06/01 21:43:16 by oettaqi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,4 +77,5 @@ void	printf_mutex_thinking(t_philo *philo);
 long	timetamp(void);
 int		simulation_is_not_ended(t_philo *philo);
 void	take_two_fork_even(t_philo *philo);
+int		ft_isdigit(int c);
 #endif

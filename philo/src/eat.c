@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   eat.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seb <seb@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 16:44:13 by seb               #+#    #+#             */
-/*   Updated: 2025/05/31 17:05:08 by seb              ###   ########.fr       */
+/*   Updated: 2025/06/01 21:02:22 by oettaqi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@ void	eating_process(t_philo *p)
 		pthread_mutex_unlock(&p->infos->mutex_finished);
 	}
 	pthread_mutex_lock(&p->infos->mutex_on_write);
-	printf("[%ld] , [%d] has taken a fork\n",
+	printf("%ld %d has taken a fork\n",
 		timetamp() - p->infos->beginning_of_simulation, p->id + 1);
-	printf("[%ld] , [%d] has taken a fork\n",
+	printf("%ld %d has taken a fork\n",
 		timetamp() - p->infos->beginning_of_simulation, p->id + 1);
-	printf("[%ld] , [%d] is eating\n",
+	printf("%ld %d is eating\n",
 		timetamp() - p->infos->beginning_of_simulation, p->id + 1);
 	pthread_mutex_unlock(&p->infos->mutex_on_write);
 	precise_sleep(p->infos->time_to_eat);

@@ -16,7 +16,8 @@ SRC=    src/main.c \
 		src/sleep.c \
 		src/take_drop_fork.c \
 		src/timetamp.c \
-		src/wait_all_philo.c 
+		src/wait_all_philo.c \
+		src/is_digit.c
 
 OBJ_DIR=obj
 OBJS=$(SRC:%.c=$(OBJ_DIR)/%.o)

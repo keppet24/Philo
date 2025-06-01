@@ -3,14 +3,34 @@
 /*                                                        :::      ::::::::   */
 /*   philo_init.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seb <seb@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: oettaqi <oettaqi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 16:40:21 by seb               #+#    #+#             */
-/*   Updated: 2025/05/31 17:00:32 by seb              ###   ########.fr       */
+/*   Updated: 2025/06/01 21:55:47 by oettaqi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
+
+int	malloc_infos(t_global_info *infos)
+{
+	infos->beginning_of_simulation = timetamp();
+	infos->table_of_philo
+		= malloc(sizeof(t_philo) * infos->nbr_of_philosophers);
+	if (!infos->table_of_philo)
+	{
+		free(infos->table_of_philo);
+		free(infos);
+		return (0);
+	}
+	infos->table_of_fork = malloc(sizeof(t_fork) * infos->nbr_of_philosophers);
+	if (!infos->table_of_fork)
+	{
+		free(infos);
+		return (0);
+	}
+	return (1);
+}
 
 void	philo_init(t_global_info *infos, int i)
 {
@@ -31,28 +51,16 @@ void	create_philo_and_set_the_table(t_global_info *infos)
 	int	i;
 
 	i = 0;
-	infos->beginning_of_simulation = timetamp();
-	infos->table_of_philo
-		= malloc(sizeof(t_philo) * infos->nbr_of_philosophers);
-	if (!infos->table_of_philo)
-	{
-		free(infos->table_of_philo);
-		free(infos);
+	if (malloc_infos(infos) == 0)
 		return ;
-	}
-	infos->table_of_fork = malloc(sizeof(t_fork) * infos->nbr_of_philosophers);
-	if (!infos->table_of_fork)
-	{
-		free(infos);
-		return ;
-	}
 	while (i < infos->nbr_of_philosophers)
 		philo_init(infos, i++);
 	i = 0;
 	while (i < infos->nbr_of_philosophers)
-	{
-		pthread_create(&(infos->table_of_philo[i].id_thread),
-			NULL, routine, &(infos->table_of_philo[i]));
+	{	
+		if (pthread_create(&(infos->table_of_philo[i].id_thread),
+				NULL, routine, &(infos->table_of_philo[i])))
+			break ;
 		i++;
 	}
 }
